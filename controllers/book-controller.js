@@ -1,11 +1,9 @@
 const { BookModel } = require("../models/book-model");
 
 const addBook = async (req, res) => {
-  const { title, author, category, quantity, publishYear } = req.body;
-  if(category!==req.user.category){
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-  const book = new BookModel({ title, author, category, quantity, publishYear });
+  const { title, author, quantity, publishYear } = req.body;
+  
+  const book = new BookModel({ title, author, category:req.user.category, quantity, publishYear });
   await book.save();
   res.status(201).json(book);
 };
