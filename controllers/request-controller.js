@@ -53,9 +53,12 @@ const handleRequest = async (req, res) => {
 };
 
 const getUserRequests = async (req, res) => {
-  const userRequests = await RequestModel.find({ userId: req.user._id, status: req.body.status }).populate('bookId', 'title quantity publishYear category');
+  const { status } = req.query;
+  const userRequests = await RequestModel.find({ userId: req.user._id, status })
+      .populate('bookId', 'title quantity publishYear category');
   res.json(userRequests);
 };
+
 
 const getAllRequests = async (req, res) => {
   try {
