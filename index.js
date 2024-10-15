@@ -19,16 +19,6 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
-// app.use(cors({
-//     origin: "*",
-// }))
-// app.use(cors({
-//     origin: function (origin, callback) {
-//         callback(null, origin);
-//     },
-//     credentials: true,
-// }));
-
 app.get("/", async (req, res) => {
     try {
         res.send("Welcome To Library Manager");

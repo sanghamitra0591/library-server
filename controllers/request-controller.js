@@ -56,10 +56,42 @@ const getUserRequests = async (req, res) => {
   const userRequests = await RequestModel.find({ userId: req.user._id }).populate('bookId');
   res.json(userRequests);
 };
-
 const getAllRequests = async (req, res) => {
-  const allRequests = await RequestModel.find({ category: req.user.category });
-  res.json(allRequests);
+  try {
+      const allRequests = await RequestModel.find({ category: req.user.category })
+          .populate('userId', 'name email')
+          .populate('bookId', 'title author publishYear category');
+
+      const formattedRequests = allRequests.map(request => ({
+          _id: request._id,
+          requestDate: request.requestDate,
+          expectedReturnDate: request.expectedReturnDate,
+          status: request.status,
+          penalty: request.penalty,
+          user: {
+              id: request.userId._id,
+              name: request.userId.name,
+              email: request.userId.email,
+          },
+          book: {
+              id: request.bookId._id,
+              title: request.bookId.title,
+              author: request.bookId.author,
+              publishYear: request.bookId.publishYear,
+              category: request.bookId.category,
+          }
+      }));
+
+      res.json(formattedRequests);
+  } catch (error) {
+      console.error('Error fetching requests:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
 };
+
+
+
+
+
 
 module.exports = { createRequest, handleRequest, getUserRequests, getAllRequests };
