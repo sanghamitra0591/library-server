@@ -66,12 +66,15 @@ const getAllRequests = async (req, res) => {
       const formattedRequests = allRequests.map(request => ({
           _id: request._id,
           requestDate: request.requestDate,
+          requestAccepted: request.requestAccepted,
           expectedReturnDate: request.expectedReturnDate,
+          returnDate: request.returnDate,
+          category: request.category,
           status: request.status,
           penalty: request.penalty,
           user: request.userId ? {
               id: request.userId._id,
-              name: request.userId.name,
+              username: request.userId.username,
               email: request.userId.email,
               penalties: request.userId.penalties,
           } : null,
@@ -83,7 +86,6 @@ const getAllRequests = async (req, res) => {
               category: request.bookId.category,
           } : null,
       }));
-
       res.json(formattedRequests);
   } catch (error) {
       console.error('Error fetching requests:', error);
