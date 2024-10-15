@@ -12,15 +12,22 @@ const app = express();
 app.use(express.json());
 
 const cors = require("cors");
-// app.use(cors({
-//     origin: "*"
-// }))
+
 app.use(cors({
-    origin: function (origin, callback) {
-        callback(null, origin);
-    },
-    credentials: true,
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
 }));
+
+// app.use(cors({
+//     origin: "*",
+// }))
+// app.use(cors({
+//     origin: function (origin, callback) {
+//         callback(null, origin);
+//     },
+//     credentials: true,
+// }));
 
 app.get("/", async (req, res) => {
     try {
