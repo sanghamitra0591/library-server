@@ -59,32 +59,29 @@ const getUserRequests = async (req, res) => {
 
 const getAllRequests = async (req, res) => {
   try {
-      const allRequests = await RequestModel.find({ category: req.user.category });
+      const allRequests = await RequestModel.find({ category: req.user.category })
+          .populate('userId', 'name email penalties')
+          .populate('bookId', 'title quantity publishYear category');
 
-      const formattedRequests = await Promise.all(allRequests.map(async request => {
-          const populatedRequest = await RequestModel.findById(request._id)
-              .populate('userId', 'name email')
-              .populate('bookId', 'title author publishYear category');
-
-          return {
-              _id: populatedRequest._id,
-              requestDate: populatedRequest.requestDate,
-              expectedReturnDate: populatedRequest.expectedReturnDate,
-              status: populatedRequest.status,
-              penalty: populatedRequest.penalty,
-              user: populatedRequest.userId ? {
-                  id: populatedRequest.userId._id,
-                  name: populatedRequest.userId.name,
-                  email: populatedRequest.userId.email,
-              } : null,
-              book: populatedRequest.bookId ? {
-                  id: populatedRequest.bookId._id,
-                  title: populatedRequest.bookId.title,
-                  author: populatedRequest.bookId.author,
-                  publishYear: populatedRequest.bookId.publishYear,
-                  category: populatedRequest.bookId.category,
-              } : null,
-          };
+      const formattedRequests = allRequests.map(request => ({
+          _id: request._id,
+          requestDate: request.requestDate,
+          expectedReturnDate: request.expectedReturnDate,
+          status: request.status,
+          penalty: request.penalty,
+          user: request.userId ? {
+              id: request.userId._id,
+              name: request.userId.name,
+              email: request.userId.email,
+              penalties: request.userId.penalties,
+          } : null,
+          book: request.bookId ? {
+              id: request.bookId._id,
+              title: request.bookId.title,
+              quantity: request.bookId.quantity,
+              publishYear: request.bookId.publishYear,
+              category: request.bookId.category,
+          } : null,
       }));
 
       res.json(formattedRequests);
@@ -93,6 +90,7 @@ const getAllRequests = async (req, res) => {
       res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 
