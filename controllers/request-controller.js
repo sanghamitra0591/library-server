@@ -54,45 +54,51 @@ const handleRequest = async (req, res) => {
 
 const getUserRequests = async (req, res) => {
   const { status } = req.query;
-  const userRequests = await RequestModel.find({ userId: req.user._id, status })
+  if (status === "returned") {
+    const userRequests = await RequestModel.find({ userId: req.user._id, returnDate:"" })
       .populate('bookId', 'title quantity publishYear category');
-  res.json(userRequests);
+    res.json(userRequests);
+  } else {
+    const userRequests = await RequestModel.find({ userId: req.user._id, status })
+      .populate('bookId', 'title quantity publishYear category');
+    res.json(userRequests);
+  }
 };
 
 
 const getAllRequests = async (req, res) => {
   try {
-      const allRequests = await RequestModel.find({ category: req.user.category })
-          .populate('userId', 'name email penalties')
-          .populate('bookId', 'title quantity publishYear category');
+    const allRequests = await RequestModel.find({ category: req.user.category })
+      .populate('userId', 'name email penalties')
+      .populate('bookId', 'title quantity publishYear category');
 
-      const formattedRequests = allRequests.map(request => ({
-          _id: request._id,
-          requestDate: request.requestDate,
-          requestAccepted: request.requestAccepted,
-          expectedReturnDate: request.expectedReturnDate,
-          returnDate: request.returnDate,
-          category: request.category,
-          status: request.status,
-          penalty: request.penalty,
-          user: request.userId ? {
-              id: request.userId._id,
-              username: request.userId.username,
-              email: request.userId.email,
-              penalties: request.userId.penalties,
-          } : null,
-          book: request.bookId ? {
-              id: request.bookId._id,
-              title: request.bookId.title,
-              quantity: request.bookId.quantity,
-              publishYear: request.bookId.publishYear,
-              category: request.bookId.category,
-          } : null,
-      }));
-      res.json(formattedRequests);
+    const formattedRequests = allRequests.map(request => ({
+      _id: request._id,
+      requestDate: request.requestDate,
+      requestAccepted: request.requestAccepted,
+      expectedReturnDate: request.expectedReturnDate,
+      returnDate: request.returnDate,
+      category: request.category,
+      status: request.status,
+      penalty: request.penalty,
+      user: request.userId ? {
+        id: request.userId._id,
+        username: request.userId.username,
+        email: request.userId.email,
+        penalties: request.userId.penalties,
+      } : null,
+      book: request.bookId ? {
+        id: request.bookId._id,
+        title: request.bookId.title,
+        quantity: request.bookId.quantity,
+        publishYear: request.bookId.publishYear,
+        category: request.bookId.category,
+      } : null,
+    }));
+    res.json(formattedRequests);
   } catch (error) {
-      console.error('Error fetching requests:', error);
-      res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching requests:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
