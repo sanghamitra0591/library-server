@@ -1,6 +1,7 @@
 
 const { BookModel } = require("../models/book-model");
 const { RequestModel } = require("../models/request-model");
+const { UserModel } = require("../models/user-model");
 
 const createRequest = async (req, res) => {
   const { bookId } = req.body;
@@ -52,48 +53,76 @@ const handleRequest = async (req, res) => {
   res.json(request);
 };
 
+const returnRequest = async (req, res) => {
+  const { requestId, status } = req.body;
+  const request = await RequestModel.findById(requestId).populate('bookId');
+
+  if (!request) {
+    return res.status(404).json({ message: 'Request not found' });
+  }
+
+  const currentDate = new Date();
+  
+  if (request.expectedReturnDate < currentDate) {
+    const overdueDays = Math.ceil((currentDate - request.expectedReturnDate) / (1000 * 60 * 60 * 24));
+    const penaltyToAdd = overdueDays * 50;
+
+    request.penalty += penaltyToAdd;
+    await UserModel.findByIdAndUpdate(request.userId, { $inc: { penalties: penaltyToAdd } });
+  }
+
+  request.status = status;
+  request.returnDate = new Date();
+  await request.save();
+
+  request.bookId.quantity += 1;
+  await request.bookId.save();
+  
+  res.json(request);
+};
+
 const getUserRequests = async (req, res) => {
   const { status } = req.query;
   const userRequests = await RequestModel.find({ userId: req.user._id, status })
-      .populate('bookId', 'title quantity publishYear category');
+    .populate('bookId', 'title quantity publishYear category');
   res.json(userRequests);
 };
 
 
 const getAllRequests = async (req, res) => {
   try {
-      const allRequests = await RequestModel.find({ category: req.user.category })
-          .populate('userId', 'username email penalties')
-          .populate('bookId', 'title quantity publishYear category');
+    const allRequests = await RequestModel.find({ category: req.user.category })
+      .populate('userId', 'username email penalties')
+      .populate('bookId', 'title quantity publishYear category');
 
-      const formattedRequests = allRequests.map(request => ({
-          _id: request._id,
-          requestDate: request.requestDate,
-          requestAccepted: request.requestAccepted,
-          expectedReturnDate: request.expectedReturnDate,
-          returnDate: request.returnDate,
-          category: request.category,
-          status: request.status,
-          penalty: request.penalty,
-          user: request.userId ? {
-              id: request.userId._id,
-              username: request.userId.username,
-              email: request.userId.email,
-              penalties: request.userId.penalties,
-          } : null,
-          book: request.bookId ? {
-              id: request.bookId._id,
-              title: request.bookId.title,
-              quantity: request.bookId.quantity,
-              publishYear: request.bookId.publishYear,
-              category: request.bookId.category,
-          } : null,
-      }));
-      console.log(formattedRequests);
-      res.json(formattedRequests);
+    const formattedRequests = allRequests.map(request => ({
+      _id: request._id,
+      requestDate: request.requestDate,
+      requestAccepted: request.requestAccepted,
+      expectedReturnDate: request.expectedReturnDate,
+      returnDate: request.returnDate,
+      category: request.category,
+      status: request.status,
+      penalty: request.penalty,
+      user: request.userId ? {
+        id: request.userId._id,
+        username: request.userId.username,
+        email: request.userId.email,
+        penalties: request.userId.penalties,
+      } : null,
+      book: request.bookId ? {
+        id: request.bookId._id,
+        title: request.bookId.title,
+        quantity: request.bookId.quantity,
+        publishYear: request.bookId.publishYear,
+        category: request.bookId.category,
+      } : null,
+    }));
+    console.log(formattedRequests);
+    res.json(formattedRequests);
   } catch (error) {
-      console.error('Error fetching requests:', error);
-      res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching requests:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -102,4 +131,4 @@ const getAllRequests = async (req, res) => {
 
 
 
-module.exports = { createRequest, handleRequest, getUserRequests, getAllRequests };
+module.exports = { createRequest, handleRequest, returnRequest, getUserRequests, getAllRequests };
