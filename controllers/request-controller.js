@@ -63,7 +63,7 @@ const getUserRequests = async (req, res) => {
 const getAllRequests = async (req, res) => {
   try {
       const allRequests = await RequestModel.find({ category: req.user.category })
-          .populate('userId', 'name email penalties')
+          .populate('userId', 'username email penalties')
           .populate('bookId', 'title quantity publishYear category');
 
       const formattedRequests = allRequests.map(request => ({
@@ -89,6 +89,7 @@ const getAllRequests = async (req, res) => {
               category: request.bookId.category,
           } : null,
       }));
+      console.log(formattedRequests);
       res.json(formattedRequests);
   } catch (error) {
       console.error('Error fetching requests:', error);
