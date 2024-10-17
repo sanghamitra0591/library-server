@@ -38,8 +38,18 @@ const addBook = async (req, res) => {
 };
 
 const getAllBooks = async (req, res) => {
-  const books = await BookModel.find();
-  res.json(books);
+  try {
+    let filter = {};
+    
+    if (req.user.role === "admin") {
+      filter.category = req.user.category;
+    }
+    
+    const books = await BookModel.find(filter);
+    res.json(books);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 const searchBooks = async (req, res) => {

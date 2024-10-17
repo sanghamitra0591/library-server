@@ -60,19 +60,12 @@ const addAdmin = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    let filter = {};
-    
-    if (req.user.role === "admin") {
-      filter.category = req.user.category;
-    }
-    
-    const users = await UserModel.find(filter);
+    const users = await UserModel.find();
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 const getAllAdmins = async (req, res) => {
   try {
