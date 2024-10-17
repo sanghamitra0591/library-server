@@ -69,11 +69,14 @@ const getAllUsers = async (req, res) => {
 
 const getAllAdmins = async (req, res) => {
   try {
-    const admins = await UserModel.find({ role: 'admin' });
-    res.json(admins);
+      const admins = await UserModel.find({ role: 'admin' }).select('-password');
+      res.json(admins);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message });
   }
 };
+
+module.exports = { addAdmin, getAllUsers, getAllAdmins };
+
 
 module.exports = { addAdmin, getAllUsers, getAllAdmins };
