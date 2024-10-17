@@ -39,7 +39,12 @@ const addBook = async (req, res) => {
 
 const getAllBooks = async (req, res) => {
   try {
+    const {category} = req.params;
     let filter = {};
+
+    if(category && category!==""){
+      filter.category = category;
+    }
     
     if (req.user.role === "admin") {
       filter.category = req.user.category;
