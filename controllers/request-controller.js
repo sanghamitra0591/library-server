@@ -91,7 +91,7 @@ const returnRequest = async (req, res) => {
     }
 
     const currentDate = new Date();
-    
+
     if (request.expectedReturnDate < currentDate) {
       const overdueDays = Math.ceil((currentDate - request.expectedReturnDate) / (1000 * 60 * 60 * 24));
       const penaltyToAdd = overdueDays * 50;
@@ -106,7 +106,7 @@ const returnRequest = async (req, res) => {
 
     request.bookId.quantity += 1;
     await request.bookId.save();
-    
+
     res.json(request);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -116,6 +116,13 @@ const returnRequest = async (req, res) => {
 const getUserRequests = async (req, res) => {
   try {
     const { status } = req.query;
+
+    if (!status) {
+      const userRequests = await RequestModel.find({ userId: req.user._id })
+        .populate('bookId', 'title quantity publishYear category');
+
+      return res.json(userRequests);
+    }
 
     if (status && !['pending', 'accepted', 'declined', 'returned'].includes(status)) {
       return res.status(400).json({ message: 'Invalid status provided.' });
