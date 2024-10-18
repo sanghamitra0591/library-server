@@ -40,7 +40,8 @@ const requestSchema = mongoose.Schema({
   },
   category: {
     type: String,
-    required: true
+    required: true,
+    default: null
   }
 });
 const RequestModel = mongoose.model('Request', requestSchema);
