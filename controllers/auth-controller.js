@@ -3,10 +3,11 @@ const jwt = require('jsonwebtoken');
 const { UserModel } = require('../models/user-model');
 const validator = require('validator');
 
-const validRoles = [ 'user', 'super_admin'];
+const validRoles = ['user', 'super_admin'];
 
 const register = async (req, res) => {
   try {
+
     const { username, password, email, role } = req.body;
 
     if (!username || !password || !email) {
@@ -38,7 +39,7 @@ const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new UserModel({ username, password: hashedPassword, email, role : role });
+    const user = new UserModel({ username, password: hashedPassword, email, role: role });
     await user.save();
 
     res.status(201).json({ message: 'User created', user });
