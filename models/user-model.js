@@ -34,3 +34,11 @@ const UserModel = mongoose.model("User", userSchema);
 module.exports = {
   UserModel
 }
+
+// UserModel.collection.dropIndex("category_1", (err, result) => {
+//   if (err) {
+//     console.log("Error dropping index:", err);
+//   } else {
+//     console.log("Index dropped:", result);
+//   }
+// });
