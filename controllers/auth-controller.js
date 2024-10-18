@@ -8,7 +8,7 @@ const validRoles = ['user', 'super_admin'];
 const register = async (req, res) => {
   try {
 
-    const { username, password, email, role } = req.body;
+    const { username, password, email } = req.body;
 
     if (!username || !password || !email) {
       return res.status(400).json({ message: 'Username, password, and email are required.' });
@@ -39,7 +39,7 @@ const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new UserModel({ username, password: hashedPassword, email, role: role });
+    const user = new UserModel({ username, password: hashedPassword, email });
     await user.save();
 
     res.status(201).json({ message: 'User created', user });
