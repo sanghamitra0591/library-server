@@ -39,7 +39,7 @@ const addBook = async (req, res) => {
 
 const getAllBooks = async (req, res) => {
   try {
-    const {category} = req.params;
+    const {category} = req.query;
     let filter = {};
 
     if(category && category!==""){
