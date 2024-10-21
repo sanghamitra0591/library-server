@@ -76,7 +76,44 @@ const getAllAdmins = async (req, res) => {
   }
 };
 
-module.exports = { addAdmin, getAllUsers, getAllAdmins };
+const updateAdmin = async (req, res) => {
+  try {
+    const { adminId } = req.params;
+    const updateData = req.body;
 
+    if (!updateData.username && !updateData.email && !updateData.category) {
+      return res.status(400).json({ message: 'At least one field to update is required.' });
+    }
 
-module.exports = { addAdmin, getAllUsers, getAllAdmins };
+    const updatedAdmin = await UserModel.findByIdAndUpdate(adminId, updateData, { new: true, runValidators: true });
+
+    if (!updatedAdmin) {
+      return res.status(404).json({ message: 'Admin not found.' });
+    }
+    res.json(updatedAdmin);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteAdmin = async (req, res) => {
+  try {
+    const { adminId } = req.params;
+
+    if (!adminId) {
+      return res.status(400).json({ message: 'Admin ID is required.' });
+    }
+
+    const deletedAdmin = await UserModel.findByIdAndDelete(adminId);
+
+    if (!deletedAdmin) {
+      return res.status(404).json({ message: 'Admin not found.' });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { addAdmin, getAllUsers, getAllAdmins, updateAdmin, deleteAdmin };

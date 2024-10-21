@@ -58,4 +58,59 @@ const searchBooks = async (req, res) => {
   res.json(books);
 };
 
-module.exports = { addBook, getAllBooks, searchBooks };
+const updateBook = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, author, quantity, publishYear } = req.body;
+
+    if (title && (typeof title !== 'string' || title.trim().length === 0)) {
+      return res.status(400).json({ message: 'Title must be a non-empty string.' });
+    }
+
+    if (author && (typeof author !== 'string' || author.trim().length === 0)) {
+      return res.status(400).json({ message: 'Author must be a non-empty string.' });
+    }
+
+    if (quantity !== undefined && (typeof quantity !== 'number' || quantity < 0 || !Number.isInteger(quantity))) {
+      return res.status(400).json({ message: 'Quantity must be a non-negative integer.' });
+    }
+
+    const currentYear = new Date().getFullYear();
+    if (publishYear && (!/^\d{4}$/.test(publishYear) || parseInt(publishYear, 10) < 1000 || parseInt(publishYear, 10) > currentYear)) {
+      return res.status(400).json({ message: 'Publish year must be a valid four-digit year.' });
+    }
+
+    const book = await BookModel.findByIdAndUpdate(id, { title, author, quantity, publishYear }, { new: true, runValidators: true });
+    
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found.' });
+    }
+
+    res.json(book);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteBook = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const book = await BookModel.findById(id);
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found.' });
+    }
+
+    await RequestModel.deleteMany({ bookId: id });
+
+    await book.remove();
+
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+module.exports = { addBook, getAllBooks, searchBooks, updateBook, deleteBook };

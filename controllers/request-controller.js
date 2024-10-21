@@ -174,4 +174,30 @@ const getAllRequests = async (req, res) => {
   }
 };
 
-module.exports = { createRequest, handleRequest, returnRequest, getUserRequests, getAllRequests };
+const deleteRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    if (!requestId) {
+      return res.status(400).json({ message: 'Request ID is required.' });
+    }
+
+    const request = await RequestModel.findById(requestId);
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found.' });
+    }
+
+    if (request.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    await RequestModel.findByIdAndDelete(requestId);
+
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+module.exports = { createRequest, handleRequest, returnRequest, getUserRequests, getAllRequests, deleteRequest };
