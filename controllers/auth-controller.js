@@ -8,7 +8,7 @@ const validRoles = ['user', 'super_admin'];
 const register = async (req, res) => {
   try {
 
-    const { username, password, email } = req.body;
+    const { username, password, email, role } = req.body;
 
     if (!username || !password || !email) {
       return res.status(400).json({ message: 'Username, password, and email are required.' });
