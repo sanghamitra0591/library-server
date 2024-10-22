@@ -93,10 +93,11 @@ const returnRequest = async (req, res) => {
     const currentDate = new Date();
 
     if (request.expectedReturnDate < currentDate) {
-      const overdueDays = Math.ceil((currentDate - request.expectedReturnDate) / (1000 * 60 * 60 * 24));
+      const overdueDays = Math.floor((currentDate - request.expectedReturnDate) / (1000 * 60 * 60 * 24));
       const penaltyToAdd = overdueDays * 50;
 
       request.penalty += penaltyToAdd;
+      console.log(penaltyToAdd)
       await UserModel.findByIdAndUpdate(request.userId, { $inc: { penalties: penaltyToAdd } });
     }
 
