@@ -104,7 +104,7 @@ const deleteBook = async (req, res) => {
 
     await RequestModel.deleteMany({ bookId: id });
 
-    await book.remove();
+    await BookModel.deleteOne({ _id: id });
 
     res.status(204).send();
   } catch (error) {
