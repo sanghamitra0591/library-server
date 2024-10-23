@@ -55,6 +55,11 @@ const getAllBooks = async (req, res) => {
 
 const searchBooks = async (req, res) => {
   const { query } = req.params;
+  if(req.user.category){
+    const books = await BookModel.find({ title: new RegExp(query, 'i'), category: req.user.category });
+    res.json(books);
+    return;
+  }
   const books = await BookModel.find({ title: new RegExp(query, 'i') });
   res.json(books);
 };
