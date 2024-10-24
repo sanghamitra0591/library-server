@@ -5,9 +5,9 @@ const requestRouter = express.Router();
 
 requestRouter.post('/', authValidator, roleMiddleware(['user']), createRequest);
 
-requestRouter.post('/return', authValidator, roleMiddleware(['user']), returnRequest);
+requestRouter.put('/return', authValidator, roleMiddleware(['user']), returnRequest);
 
-requestRouter.post('/handle', authValidator, roleMiddleware(['admin']), handleRequest);
+requestRouter.put('/handle', authValidator, roleMiddleware(['admin']), handleRequest);
 
 requestRouter.get('/my-requests', authValidator, roleMiddleware(['user']), getUserRequests);
 
